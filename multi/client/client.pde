@@ -25,7 +25,7 @@ void setup() {
   ws = new WebsocketClient(this, "ws://" + SRV_NAME + ":" + SRV_PORT);
 
   /* 送信画像の読み込み */
-  /* ファイルはこのコードがあるディレクトリの中のclientディレクトリに置くこと */
+  /* ファイルはこのコードがあるディレクトリの中のdataディレクトリに置くこと */
   sendImg = loadImage("sample.jpg");
 
   /* データ送信 */
