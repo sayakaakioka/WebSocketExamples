@@ -37,25 +37,25 @@
     <script>
       /**
        * 受け取った画像を保存するための変数。
-       * @type Image
+       * @type {Image}
        */
       let img = new Image();
 
       /**
        * 受け取ったメッセージを保存しておく配列
-       * @type Array<String>
+       * @type {Array<String>}
        */
       let messages = [];
 
       /**
        * 文字列データの先頭に付加される文字列
-       * @type string
+       * @type {string}
        */
       const TEXT_HEADER = "data:";
 
       /**
        * JPEG画像の先頭に付加される文字列
-       * @type string
+       * @type {string}
        */
       const JPG_HEADER = "data:image/jpeg;base64";
 
@@ -66,19 +66,19 @@
       window.onload = () => {
         /**
          * 受信メッセージを表示するcanvasオブジェクト
-         * @type HTMLElement
+         * @type {HTMLElement}
          */
         const canvas1 = document.getElementById("canvas1");
 
         /**
          * 受信画像を表示するcanvasオブジェクト
-         * @type HTMLElement
+         * @type {HTMLElement}
          */
         const canvas2 = document.getElementById("canvas2");
 
         /**
          * 最大表示行数
-         * @type number
+         * @type {number}
          */
         const maxLines = 12;
 
@@ -87,7 +87,7 @@
          * ポート番号はサーバプログラムと合わせること。
          * サーバ名は、このプログラムとサーバが同じパソコンで動く場合はlocalhost、
          * 異なるパソコンで動く場合はサーバ名を書くこと。
-         * @type WebSocket
+         * @type {WebSocket}
          */
         const server = new WebSocket("ws://localhost:5001");
 
@@ -134,7 +134,7 @@
 
         /**
          * フォーム送信ボタンの様子を知るためのオブジェクト
-         * @type HTMLElement
+         * @type {HTMLElement}
          */
         const button = document.getElementById("sendBtn");
 
@@ -144,7 +144,7 @@
         button.addEventListener("click", () => {
           /**
            * テキストエリアの様子を知るためのオブジェクト
-           * @type HTMLElement
+           * @type {HTMLElement}
            */
           const msg = document.getElementById("message");
           send(server, msg.value);

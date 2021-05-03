@@ -25,7 +25,7 @@
     <script>
       /**
        * 受け取った画像を保存するための変数。
-       * @type Image
+       * @type {Image}
        */
       let img = new Image();
 
@@ -36,7 +36,7 @@
       window.onload = () => {
         /**
          * 受信メッセージを表示するcanvasオブジェクト
-         * @type HTMLElement
+         * @type {HTMLElement}
          */
         const canvas1 = document.getElementById("canvas1");
 
@@ -45,7 +45,7 @@
          * ポート番号はサーバプログラムと合わせること。
          * サーバ名は、このプログラムとサーバが同じパソコンで動く場合はlocalhost、
          * 異なるパソコンで動く場合はサーバ名を書くこと。
-         * @type WebSocket
+         * @type {WebSocket}
          */
         const server = new WebSocket("ws://localhost:5001");
 

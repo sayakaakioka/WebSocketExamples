@@ -32,7 +32,7 @@
     <script>
       /**
        * 受け取ったメッセージを保存しておく配列
-       * @type Array<String>
+       * @type {Array<String>}
        */
       let messages = [];
 
@@ -43,13 +43,13 @@
       window.onload = () => {
         /**
          * 受信メッセージを表示するcanvasオブジェクト
-         * @type HTMLElement
+         * @type {HTMLElement}
          */
         const canvas1 = document.getElementById("canvas1");
 
         /**
          * 最大表示行数
-         * @type number
+         * @type {number}
          */
         const maxLines = 25;
 
@@ -58,7 +58,7 @@
          * ポート番号はサーバプログラムと合わせること。
          * サーバ名は、このプログラムとサーバが同じPCで動いている場合はlocalhost、
          * 他のPCやクラウド上で動いている場合はサーバ名やIPアドレスを書くこと。
-         * @type WebSocket
+         * @type {WebSocket}
          */
         const server = new WebSocket("ws://localhost:5001");
 
@@ -108,7 +108,7 @@
 
         /**
          * フォーム送信ボタンの様子を知るためのオブジェクト
-         * @type HTMLElement
+         * @type {HTMLElement}
          */
         const button = document.getElementById("sendBtn");
 
@@ -118,7 +118,7 @@
         button.addEventListener("click", () => {
           /**
            * テキストエリアの様子を知るためのオブジェクト
-           * @type HTMLElement
+           * @type {HTMLElement}
            */
           const msg = document.getElementById("message");
 
