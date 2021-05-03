@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Echo Client (HTML + Javascript version)</title>
+    <style>
+      * {
+        margin: 0px;
+        padding: 0px;
+      }
+      #canvas1 {
+        background-color: #003333;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 受信したデータを表示するための領域を用意 -->
+    <div>
+      <canvas id="canvas2" width="800" height="500">
+        この文字が見えているってことはブラウザが対応してなさそう。
+      </canvas>
+    </div>
+
+    <div>
+      <canvas id="canvas1" width="800" height="250">
+        この文字が見えているってことはブラウザが対応してなさそう。
+      </canvas>
+    </div>
+
+    <!-- 送信メッセージを入力するためのフォームと送信ボタンを用意 -->
+    <div>
+      <textarea id="message" cols="100" rows="2"></textarea>
+      <input type="button" id="sendBtn" value="送信" />
+    </div>
+
+    <script>
+      /**
+       * 受け取った画像を保存するための変数。
+       * @type Image
+       */
+      let img = new Image();
+
+      /**
+       * 受け取ったメッセージを保存しておく配列
+       * @type Array<String>
+       */
+      let messages = [];
+
+      /**
+       * 文字列データの先頭に付加される文字列
+       * @type string
+       */
+      const TEXT_HEADER = "data:";
+
+      /**
+       * JPEG画像の先頭に付加される文字列
+       * @type string
+       */
+      const JPG_HEADER = "data:image/jpeg;base64";
+
+      /**
+       * ページ読み込み時1回のみの挙動を登録する。
+       * Processingでのsetup()みたいなイメージ。
+       */
+      window.onload = () => {
+        /**
+         * 受信メッセージを表示するcanvasオブジェクト
+         * @type HTMLElement
+         */
+        const canvas1 = document.getElementById("canvas1");
+
+        /**
+         * 受信画像を表示するcanvasオブジェクト
+         * @type HTMLElement
+         */
+        const canvas2 = document.getElementById("canvas2");
+
+        /**
+         * 最大表示行数
+         * @type number
+         */
+        const maxLines = 12;
+
+        /**
+         * サーバオブジェクト。
+         * ポート番号はサーバプログラムと合わせること。
+         * サーバ名は、このプログラムとサーバが同じパソコンで動く場合はlocalhost、
+         * 異なるパソコンで動く場合はサーバ名を書くこと。
+         * @type WebSocket
+         */
+        const server = new WebSocket("ws://localhost:5001");
+
+        /**
+         * サーバとの接続が確立した時の挙動を登録する。
+         * 今回はメッセージを出力するのみ。
+         * @param {Event} 発生したイベントの詳細を含むオブジェクト
+         */
+        server.addEventListener("open", (e) => {
+          console.log("open");
+        });
+
+        /**
+         * サーバからメッセージが到着した時の挙動を登録する。
+         * カンマの手前までの文字列で、テキストか画像かを判断して処理を決める。
+         * @param {MessageEvent} 発生したイベントの詳細を含むオブジェクト
+         */
+        server.addEventListener("message", (e) => {
+          /* 受け取った文字列をカンマで区切って先頭から順にtokens配列に保存 */
+          const tokens = e.data.split(",");
+
+          if (TEXT_HEADER === tokens[0]) {
+            /* tokens[0]が文字列情報を示すとき */
+            /* 到着したメッセージを表示用データ配列の最後尾に追加 */
+            messages.push(tokens[1]);
+
+            /* 最大表示行数以上のメッセージが溜まったら先頭から順に削除 */
+            while (messages.length > maxLines) {
+              messages.shift();
+            }
+          } else {
+            /* tokens[0]が文字列情報を示さないとき */
+            /* 画像として保存 */
+            img.src = e.data;
+          }
+        });
+
+        /**
+         * 一定時間ごとに繰り返す処理を無名関数にまとめて登録
+         */
+        setInterval(() => {
+          draw(canvas1, canvas2);
+        }, 1000); /* 1000ミリ秒間隔 */
+
+        /**
+         * フォーム送信ボタンの様子を知るためのオブジェクト
+         * @type HTMLElement
+         */
+        const button = document.getElementById("sendBtn");
+
+        /**
+         * ボタンが押された時の挙動を無名関数で登録
+         */
+        button.addEventListener("click", () => {
+          /**
+           * テキストエリアの様子を知るためのオブジェクト
+           * @type HTMLElement
+           */
+          const msg = document.getElementById("message");
+          send(server, msg.value);
+
+          /* 送信が済んだので入力された内容をクリアしておく */
+          msg.value = "";
+        });
+      }; /* ファイルを開いた時の挙動登録はここまで */
+
+      /**
+       * サーバに向かって文字列を送信する。
+       * @param {Server} 送信相手サーバのServerオブジェクト
+       * @param {string} 送信文字列
+       */
+      function send(server, str) {
+        server.send(TEXT_HEADER + "," + str);
+      }
+
+      /**
+       * canvasに向かって絵を描く。Processingのdraw()と同様。
+       * @param {HTMLElement} メッセージ出力用のcanvas
+       * @param {HTMLElement} 画像出力用のcanvas
+       */
+      function draw(canvasMsg, canvasImg) {
+        /* テキスト領域の描画 */
+        let context = canvasMsg.getContext("2d");
+
+        /* すでに描いてある内容を一度クリアしておく */
+        context.clearRect(0, 0, canvasMsg.width, canvasMsg.height);
+
+        /* フォントや色などの設定 */
+        context.strokeStyle = "#ff0000";
+        context.fillStyle = "#ffffff";
+        context.font = "18px serif";
+        context.textAlign = "left";
+
+        /**
+         * 1行の幅
+         * @type {number}
+         */
+        const d = 20;
+
+        /**
+         * 文字列を描き始める始点のx座標
+         * @type {number}
+         */
+        let x = 10;
+
+        /**
+         * 文字列を描き始める支店のy座標
+         * @type {number}
+         */
+        let y = d;
+        messages.forEach((msg) => {
+          context.fillText(msg, x, y);
+          y += d;
+        });
+
+        /* 画像領域の描画 */
+        context = canvasImg.getContext("2d");
+
+        /* すでに描いてある内容のクリア */
+        context.clearRect(0, 0, canvasImg.width, canvasImg.height);
+
+        /* 受信した画像を描画 */
+        context.drawImage(img, 0, 0);
+      }
+    </script>
+  </body>
+</html>
