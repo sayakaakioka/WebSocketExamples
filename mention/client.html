@@ -2,7 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>Echo Client (HTML + Javascript version)</title>
+    <title>Mention Client (HTML + Javascript version)</title>
     <style>
       * {
         margin: 0px;
@@ -23,10 +23,12 @@
       </canvas>
     </div>
 
-    <!-- 送信メッセージを入力するためのフォームと送信ボタンを用意 -->
+    <!-- メッセージを送信するためのボタンを用意 -->
     <div>
-      <textarea id="message" cols="100" rows="2"></textarea>
-      <input type="button" id="sendBtn" value="送信" />
+      <input type="button" id="sendBtn1" value="Processingへ送信" />
+      <input type="button" id="sendBtn2" value="browser2へ送信" />
+      <input type="button" id="sendBtn3" value="両方へ送信" />
+      <input type="button" id="sendBtn4" value="全員へ送信" />
     </div>
 
     <script>
@@ -81,12 +83,14 @@
          */
         server.addEventListener("message", (e) => {
           /*
-           * メッセージは「{文字列},{文字列}」という形式なので前半と後半に分ける
+           * 受け取ったデータはe.dataに入っている。
+           * メッセージは「{文字列},{文字列}」という形式ならば、
+           * 前半の文字列がtokens[1]に、後半の文字列がtokens[2]に入る。
            */
           const pattern = /^\{(.*?)\},\{(.*?)\}/;
           let tokens = e.data.match(pattern);
 
-          if (tokens.length == 3) {
+          if (tokens.length === 3) {
             /* 到着したメッセージを形を整えて配列の最後尾に追加 */
             messages.push(tokens[1] + ": " + tokens[2]);
 
@@ -110,36 +114,36 @@
          * フォーム送信ボタンの様子を知るためのオブジェクト
          * @type {HTMLElement}
          */
-        const button = document.getElementById("sendBtn");
+        const button1 = document.getElementById("sendBtn1");
+        const button2 = document.getElementById("sendBtn2");
+        const button3 = document.getElementById("sendBtn3");
+        const button4 = document.getElementById("sendBtn4");
 
         /**
          * "click" = 「ボタンが押された時」の挙動を無名関数で登録
          */
-        button.addEventListener("click", () => {
-          /**
-           * テキストエリアの様子を知るためのオブジェクト
-           * @type {HTMLElement}
-           */
-          const msg = document.getElementById("message");
-
-          /* テキストエリアに入力されている内容はmsg.valueで取得できる */
-          /* send()は自分で作ったデータ送信のための関数 */
-          send(server, msg.value);
-
-          /* 送信が済んだので入力された内容をクリアしておく */
-          msg.value = "";
+        button1.addEventListener("click", () => {
+          send(server, "Processing", "Hello from browser to Processing!");
+        });
+        button2.addEventListener("click", () => {
+          send(server, "browser2", "Hello from browser to Browser2!");
+        });
+        button3.addEventListener("click", () => {
+          send(server, "Processing,browser2", "Hello from browser to Both!");
+        });
+        button4.addEventListener("click", () => {
+          send(server, "", "Hello from browser to All!");
         });
       }; /* ファイルを開いた時の挙動登録はここまで */
 
       /**
        * サーバに向かって文字列を送信する。
-       * @param {Server} 送信相手サーバのServerオブジェクト
+       * @param {Server} サーバのServerオブジェクト
+       * @param {string} 送信相手
        * @param {string} 送信文字列
        */
-      function send(server, str) {
-        /* strに宛先とメッセージを設定する仕組みを作れば宛先指定ができるが省略 */
-        /* 今回はとりあえず全員に送信する */
-        server.send("{},{" + str + "}");
+      function send(server, dest, str) {
+        server.send("{" + dest + "},{" + str + "}");
       }
 
       /**

@@ -22,13 +22,10 @@ server.on("connection", (ws) => {
    * @param {string} 送信されたデータ文字列
    */
   ws.on("message", (message) => {
-    /* 動作確認のために受け取ったメッセージをそのまま出力 */
-    console.log(message);
-
     /*
      * メッセージは「{文字列},{文字列}」形式なので正規表現で前半と後半に分ける
      */
-    const pattern = /^\{(.*?)\},\{(.*?)\}/;
+    const pattern = /^\{(.*)\},\{(.*)\}/;
     let tokens = message.match(pattern);
 
     if (tokens != null && tokens.length === 3) {
@@ -39,8 +36,11 @@ server.on("connection", (ws) => {
 
         /* 送信者をSERVERとしてウェルカムメッセージ送信 */
         ws.send("{SERVER},{Welcome, " + ws.name + "!}");
+        console.log(ws.name + " joined.");
       } else if ("" === tokens[1]) {
         /* 宛先が空なので全員に送信する */
+        console.log("Broadcasting: " + tokens[2]);
+
         server.clients.forEach((client) => {
           /* clientとの通信が確立されていればデータを送信 */
           if (client.readyState === ws.OPEN) {
@@ -48,19 +48,22 @@ server.on("connection", (ws) => {
           }
         });
       } else {
-        /* 指定した宛先と送信者のみに送信するために送信者を抽出 */
+        console.log("Multi-casting: " + tokens[2]);
+        /* 指定した宛先と送信者のみに送信するために送信相手を抽出 */
         let dest = tokens[1].split(",");
 
         server.clients.forEach((client) => {
           dest.forEach((d) => {
             if (client.name === d && client.readyState === ws.OPEN) {
-              /* 指定された相手に送信 */
-              client.send("{" + ws.name + "},{" + tokens[2] + "}");
-            } else if (client === ws && client.readyState === ws.OPEN) {
-              /* 送信者に送信 */
+              /* 指定された相手なので送信 */
               client.send("{" + ws.name + "},{" + tokens[2] + "}");
             }
           });
+
+          if (client == ws && client.readyState === ws.OPEN) {
+            /* 送信者に送信 */
+            client.send("{" + ws.name + "},{" + tokens[2] + "}");
+          }
         });
       }
     } else {

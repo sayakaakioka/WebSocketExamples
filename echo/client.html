@@ -23,9 +23,8 @@
       </canvas>
     </div>
 
-    <!-- 送信メッセージを入力するためのフォームと送信ボタンを用意 -->
+    <!-- メッセージを送信するためのボタンを用意 -->
     <div>
-      <textarea id="message" cols="100" rows="2"></textarea>
       <input type="button" id="sendBtn" value="送信" />
     </div>
 
@@ -105,24 +104,14 @@
          * "click" = 「ボタンが押された時」の挙動を無名関数で登録
          */
         button.addEventListener("click", () => {
-          /**
-           * テキストエリアの様子を知るためのオブジェクト
-           * @type {HTMLElement}
-           */
-          const msg = document.getElementById("message");
-
-          /* テキストエリアに入力されている内容はmsg.valueで取得できる */
           /* send()は自分で作ったデータ送信のための関数 */
-          send(server, msg.value);
-
-          /* 送信が済んだので入力された内容をクリアしておく */
-          msg.value = "";
+          send(server, "Message from browser!");
         });
       }; /* ファイルを開いた時の挙動登録はここまで */
 
       /**
        * サーバに向かって文字列を送信する。
-       * @param {Server} 送信相手サーバのServerオブジェクト
+       * @param {Server} サーバのServerオブジェクト
        * @param {string} 送信文字列
        */
       function send(server, str) {
