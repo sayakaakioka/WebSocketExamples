@@ -4,36 +4,65 @@ import java.io.ByteArrayOutputStream;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
+import processing.video.*;
+
 /* デコード後のデータ用 */
 PImage received = new PImage();
 
-void setup() {
-  try {
-    /* エンコード */
-    String str = encode(loadImage("sample.jpg"));
-    println(str);
+/* カメラキャプチャ用 */
+Capture cam;
 
-    /* デコード */
-    received = decode(str);
+void setup() {
+  /* 利用可能なカメラ一覧を表示 */
+  String[] cameras = Capture.list();
+  for (int i=0; i<cameras.length; i++) {
+    println(i + ": " + cameras[i]);
   }
-  catch (Exception e) {
-    e.printStackTrace();
-    exit();
-  }
+
+  /* ここでは2番のカメラを使う。環境によって変更すること。 */
+  cam = new Capture(this, cameras[2]);
+  cam.start();
 }
 
 void draw() {
-  /* デコードされた画像に合わせて窓の大きさを変更 */
-  surface.setSize(
-    received.width + frame.getInsets().left + frame.getInsets().right,
-    received.height + frame.getInsets().top + frame.getInsets().bottom);
+  /* 画像をBase64でエンコードした文字列を保存するための変数 */
+  String str = new String();
 
-  /* デコード画像を描画 */
-  image(received, 0, 0);
+  if (cam.available()) {
+    /* カメラが利用可能ならば1枚キャプチャ */
+    cam.read();
+    try {
+      /* エンコード */
+      str = encode(cam);
+      println(str);
+    }
+    catch(IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+   if (str.length() > 0) {
+     /* 画像がエンコードされた気配があればデコードして表示する */
+    try {
+      /* デコード */
+      received = decode(str);
+
+      /* デコード画像に合わせてウィンドウサイズを変更 */
+      surface.setSize(
+        received.width + frame.getInsets().left + frame.getInsets().right,
+        received.height + frame.getInsets().top + frame.getInsets().bottom);
+
+      /* Processingのウィンドウに描画 */
+      image(received, 0, 0);
+    }
+    catch(IOException e) {
+      e.printStackTrace();
+    }
+  }
 }
 
 /* 画像ファイルをBase64で文字列に変換する */
-/* CaptureやGLCaptureはPImageを継承しているので大丈夫なはず */
+/* CaptureはPImageを継承しているので大丈夫なはず */
 String encode(PImage capture) throws IOException {
   ByteArrayOutputStream baos = new ByteArrayOutputStream();
   BufferedImage img = new BufferedImage(capture.width, capture.height, BufferedImage.TYPE_INT_RGB);

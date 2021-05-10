@@ -9,21 +9,15 @@
 Node.jsは、本来はブラウザ等からのみ実行可能であったJavaScriptを、コマンドラインから実行するためのツール。
 ブラウザから起動しないサーバプログラムを動かすために必須。
 
-### Windowsの場合
-
-[Node.jsの公式サイト](https://nodejs.org/ja/)から安定版をダウンロードしてインストール。
-特にオプションの変更はなく、「次へ」の連打で良い。
-
-### Macの場合
-
-TODO: HomebrewからスタートしてNode.jsのインストールまで書く。
+[Node.jsの公式サイト](https://nodejs.org/ja/)から推奨版をダウンロードしてインストール。
 
 ## Node.jsのwsモジュールのインストール
 
 今回はWebSocketという仕組みを使って通信するので、これをJavaScriptで簡単に書くためのモジュールを
 インストール。
 
-Windowsならばコマンドプロンプトで、Macならばターミナルで、WebSocketExampleディレクトリ
+WindowsならばNode.js Command Promptで、Macならばターミナルで、
+WebSocketExampleディレクトリ
 （今読んでいる[setup.md](./setup.md)が置いてあるディレクトリ）に移動して、以下のコマンドを実行する。
 
 ```sh
