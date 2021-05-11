@@ -73,15 +73,20 @@
          * 一定時間ごとに繰り返す処理を無名関数にまとめて登録
          */
         setInterval(() => {
-          draw(canvas1.getContext("2d"));
+          draw(canvas1);
         }, 1000); /* 1000ミリ秒間隔 */
       }; /* ファイルを開いた時の挙動登録はここまで */
 
       /**
        * canvasに向かって絵を描く。Processingのdraw()と同様。
-       * @param {Context} Canvasのコンテキスト
+       * @param {Canvas} キャンバス
        */
       function draw(context) {
+        let context = canvas.getContext("2d");
+
+        /* すでに描いてある内容を一度クリアしておく */
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
         /* 受信した画像を描画 */
         context.drawImage(img, 0, 0);
       }

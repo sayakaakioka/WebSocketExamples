@@ -4,12 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import websockets.*;
+import processing.video.*;
 
 /* サーバとの通信を管理するオブジェクト */
 WebsocketClient ws;
 
 /* 送信用データ */
-PImage sendImg;
+Capture cam;
 
 /* 受信画像保存用 */
 PImage received = new PImage();
@@ -24,21 +25,30 @@ void setup() {
   final int SRV_PORT = 5001;
   ws = new WebsocketClient(this, "ws://" + SRV_NAME + ":" + SRV_PORT);
 
-  /* 送信画像の読み込み */
-  /* ファイルはこのコードがあるディレクトリの中のdataディレクトリに置くこと */
-  sendImg = loadImage("sample.jpg");
+  /* カメラの準備 */
+  String[] cameras = Capture.list();
+  for (int i=0; i<cameras.length; i++) {
+    println(i + ": " + cameras[i]);
+  }
 
-  /* データ送信 */
-  try {
-    ws.sendMessage(encode(sendImg));
-    ws.sendMessage(encode("Hello from Processing!"));
-  }
-  catch (Exception e) {
-    e.printStackTrace();
-  }
+  cam = new Capture(this, cameras[2]);
+  cam.start();
 }
 
 void draw() {
+  try {
+    if (cam.available()) {
+      /* カメラが利用可能ならば1枚キャプチャ */
+      cam.read();
+      String str = encode(cam);
+      ws.sendMessage(str);
+    }
+  }
+  catch(Exception e) {
+    e.printStackTrace();
+    return;
+  }
+
   /* 受け取った画像に合わせて窓の大きさを変更 */
   surface.setSize(
     received.width + frame.getInsets().left + frame.getInsets().right,

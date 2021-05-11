@@ -4,12 +4,16 @@ import java.io.ByteArrayOutputStream;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import websockets.*;
+import processing.video.*; // カメラを使うために必要
 
 /* サーバとの通信を管理するオブジェクト */
 WebsocketClient ws;
 
-/* 送信用データ */
+/* 送信用データ。ファイルから画像を読み込むとき用。 */
 PImage sendImg;
+
+/* 送信用データ。カメラから画像を読み込みとき用 */
+Capture cam;
 
 /* 受信画像保存用 */
 PImage received = new PImage();
@@ -20,25 +24,47 @@ void setup() {
   final int SRV_PORT = 5001;
   ws = new WebsocketClient(this, "ws://" + SRV_NAME + ":" + SRV_PORT);
 
-  /* 送信画像の読み込み */
+  /* ファイルからの送信画像の読み込み */
   /* ファイルはこのコードがあるディレクトリの中のdataディレクトリに置くこと */
-  sendImg = loadImage("sample.jpg");
+  //  sendImg = loadImage("sample.jpg");
 
-  /* データ送信 */
-  try {
-    /* 送信データサイズに上限があるのでサイズが大きすぎる旨のエラーが出る時には
-     画像をresize()で小さくしてからエンコードすること */
-    ws.sendMessage(encode(sendImg));
+  /* 利用できるカメラ一覧を表示 */
+  String[] cameras = Capture.list();
+  for (int i=0; i<cameras.length; i++) {
+    println(i + ": " + cameras[i]);
   }
-  catch (Exception e) {
-    e.printStackTrace();
-  }
+
+  /* 2番のカメラを使う。状況に応じて変更すること。 */
+  cam = new Capture(this, cameras[2]);
+  cam.start();
 }
 
 void draw() {
+  /* データ送信 */
+  try {
+    /* ファイル画像の送信 */
+    /* 送信データサイズに上限があるのでサイズが大きすぎるエラーが出る時には
+     画像をresize()で小さくしてからエンコードすること */
+    //ws.sendMessage(encode(sendImg));
+
+    /* カメラ画像の送信 */
+    if (cam.available()) {
+      /* カメラが利用可能ならば1枚キャプチャ */
+      cam.read();
+      /* 取得した画像をエンコード */
+      String str = encode(cam);
+      /* 送信 */
+      ws.sendMessage(str);
+    }
+  }
+  catch(Exception e) {
+    e.printStackTrace();
+    return;
+  }
+
   /* 受け取った画像に合わせて窓の大きさを変更 */
   surface.setSize(
-    received.width + frame.getInsets().left + frame.getInsets().right, 
+    received.width + frame.getInsets().left + frame.getInsets().right,
     received.height + frame.getInsets().top + frame.getInsets().bottom);
 
   /* 画像を描画 */
@@ -48,6 +74,8 @@ void draw() {
 /* サーバからデータを受信したら呼ばれる関数 */
 void webSocketEvent(String msg) {
   try {
+    /* 受け取った文字列をデコード関数に渡して
+      返ってきた文字列を受け取り画像用変数に保存 */
     received = decode(msg);
   }
   catch(Exception e) {
