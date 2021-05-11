@@ -26,6 +26,8 @@ void setup() {
 
   /* データ送信 */
   try {
+    /* 送信データサイズに上限があるのでサイズが大きすぎる旨のエラーが出る時には
+     画像をresize()で小さくしてからエンコードすること */
     ws.sendMessage(encode(sendImg));
   }
   catch (Exception e) {
@@ -36,7 +38,7 @@ void setup() {
 void draw() {
   /* 受け取った画像に合わせて窓の大きさを変更 */
   surface.setSize(
-    received.width + frame.getInsets().left + frame.getInsets().right,
+    received.width + frame.getInsets().left + frame.getInsets().right, 
     received.height + frame.getInsets().top + frame.getInsets().bottom);
 
   /* 画像を描画 */
