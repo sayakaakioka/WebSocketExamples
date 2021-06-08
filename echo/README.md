@@ -19,6 +19,9 @@
 * [client.py](./client/client.py):
     Python版クライアントプログラム。マルチスレッド利用なので特に理由がなければ非推奨。
     websocket-clientがインストールされている必要あり。
+* [sendOnlyClient.py](./client/sendOnlyClient.py):
+    Python版クライアントプログラム。スレッドを使用しないが送信のみで受信しない。
+    websocket-clientがインストールされている必要あり。
 
 ひと通り動作確認するために必要なプログラムは以上だが、`server.js`の理解を深める目的で以下のプログラムも
 置いてある。何が今風かとか、JavaScript風かについては、授業で。
