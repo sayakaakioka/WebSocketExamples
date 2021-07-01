@@ -60,7 +60,7 @@ msg = ""
 # 通信の様子を詳しく見たい場合には利用
 #websocket.enableTrace(True)
 
-ws = websocket.WebSocketApp("ws://localhost:5001", on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
+ws = websocket.WebSocketApp("ws://192.168.50.24:10001", on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
 ws.run_forever()
 
 

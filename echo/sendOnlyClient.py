@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from websocket import create_connection
 import time
 
