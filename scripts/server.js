@@ -9,6 +9,7 @@ if (
   console.error("usage: % node server.js <port#>");
   return;
 }
+process.env.TZ='Asia/Tokyo';
 
 /* 待ち受け開始 */
 const ws = require("ws");
@@ -52,6 +53,5 @@ server.on("connection", (ws, req) => {
  * @param {string} 出力メッセージ
  */
 function printMessage(message) {
-  const date = new Date();
-  console.log(date.toLocaleString() + "\t" + message);
+  console.log(new Date().toLocaleString() + "\t" + message); 
 }
